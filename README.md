@@ -5,10 +5,12 @@
 Herramienta diseñada para la enumeración de directorios en aplicaciones web utilizando un diccionario de posibles rutas. La herramienta realiza solicitudes HTTP a cada ruta del diccionario y muestra información relevante, como el código de respuesta HTTP. El objetivo principal es identificar directorios accesibles y obtener información sobre la estructura de la aplicación.
 
 ## Características Principales
-- **Uso de Diccionario:** La herramienta toma un diccionario que contiene posibles rutas de directorios.
-- **Colores para Códigos de Estado:** Códigos de estado exitosos se muestran en verde, y códigos de error en rojo.
-- **Opción para Mostrar Solo Códigos de Estado Exitosos:** Se proporciona una opción
-(`-s` o `--success-only`) para mostrar solo códigos de estado exitosos en la salida.
+### **Uso de Diccionario** 
+La herramienta toma un diccionario que contiene posibles rutas de directorios.
+### **Colores para Códigos de Estado** 
+Códigos de estado exitosos se muestran en verde, y códigos de error en rojo.
+### **Opción para Mostrar Solo Códigos de Estado Exitosos:** 
+Se proporciona una opción (`-s` o `--success-only`) para mostrar solo códigos de estado exitosos en la salida.
 
 ## Uso Básico
 ```bash

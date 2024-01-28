@@ -7,7 +7,8 @@ Herramienta diseñada para la enumeración de directorios en aplicaciones web ut
 ## Características Principales
 - **Uso de Diccionario:** La herramienta toma un diccionario que contiene posibles rutas de directorios.
 - **Colores para Códigos de Estado:** Códigos de estado exitosos se muestran en verde, y códigos de error en rojo.
-- **Opción para Mostrar Solo Códigos de Estado Exitosos:** Se proporciona una opción (`-s` o `--success-only`) para mostrar solo códigos de estado exitosos en la salida.
+- **Opción para Mostrar Solo Códigos de Estado Exitosos:** Se proporciona una opción
+(`-s` o `--success-only`) para mostrar solo códigos de estado exitosos en la salida.
 
 ## Uso Básico
 ```bash

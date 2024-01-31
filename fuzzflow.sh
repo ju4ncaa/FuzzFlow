@@ -29,6 +29,12 @@ if [ ! -f "$dict" ]; then
     exit 1
 fi
 
+# Verificar url
+if ! curl -s --head "$url" >/dev/null; then
+    echo -e "\n${RED}[!]${RESET} La URL '$url' no es válida o no se puede acceder"
+    exit 1
+fi
+
 # Verificar argumentos opcionales
 while [[ $# -gt 2 ]]; do
     case "$3" in
@@ -51,7 +57,7 @@ echo -e "\n"
 while IFS= read -r line; do
     # Añadir barra de la url al final si no contiene
     if [[ "${url: -1}" != "/" ]]; then
-    url="$url/"
+        url="$url/"
     fi
 
     dir_url="$url/$line"

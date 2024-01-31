@@ -11,6 +11,8 @@ La herramienta toma un diccionario que contiene posibles rutas de directorios.
 Códigos de estado exitosos se muestran en verde, y códigos de error en rojo.
 ### **Opción para Mostrar Solo Códigos de Estado Exitosos:** 
 Se proporciona una opción (`-s` o `--success-only`) para mostrar solo códigos de estado exitosos en la salida.
+### **Opción de guardar el escaneo en fichero**
+Se proporciona una opción (`-w, --output-file`) para guardar la salida del escaneo en un archivo especificado.
 
 ## Uso Básico
 ```bash

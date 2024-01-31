@@ -49,9 +49,9 @@ start_line=0
 # Leer las líneas y enviar peticiones
 echo -e "\n"
 while IFS= read -r line; do
-    # Quitar barra de la url al final si contiene
-    if [[ "$url" == */ ]]; then
-        url="${url%/}"
+    # Añadir barra de la url al final si no contiene
+    if [[ "${url: -1}" != "/" ]]; then
+    url="$url/"
     fi
 
     dir_url="$url/$line"

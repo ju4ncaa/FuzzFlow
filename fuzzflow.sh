@@ -25,13 +25,13 @@ success_only=false
 
 # Verificar que el diccionario proporcionado se encuentra en el sistema
 if [ ! -f "$dict" ]; then
-    echo -e "\n${RED}[!]${RESET} El diccionario '$dict' no existe"
+    echo -e "\n${RED}[!]${RESET} El diccionario ${YELLOW}'$dict'${RESET} no existe"
     exit 1
 fi
 
 # Verificar url
 if ! curl -s --head "$url" >/dev/null; then
-    echo -e "\n${RED}[!]${RESET} La URL '$url' no es válida o no se puede acceder"
+    echo -e "\n${RED}[!]${RESET} La URL ${YELLOW}'$url'${RESET} no es válida o no se puede acceder"
     exit 1
 fi
 

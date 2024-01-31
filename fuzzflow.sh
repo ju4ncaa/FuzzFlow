@@ -9,9 +9,17 @@ YELLOW="\e[1;93m"
 CYAN="\e[1;96m"
 RESET="\e[1;97m"
 
+# Funcion salir
+trap ctrl_c INT
+stty -ctlecho
+function ctrl_c(){
+    echo -e "\n\n${RED}[!]${RESET} Saliendo..."
+    exit 0
+}
+
 # Verificar que se proporcionan los dos argumentos
 print_help() {
-    echo -e "\n${YELLOW}[*]${RESET} Ayuda: ${CYAN}$0${RESET} ${YELLOW}<diccionario> <url>${RESET} ${GREEN}[-s | --success-only]${RESET}"
+    echo -e "\n${YELLOW}[*]${RESET} Ayuda: ${CYAN}$0${RESET} ${YELLOW}<diccionario> <url>${RESET} ${GREEN}[-s | --success-only]${RESET} ${GREEN}[-w | --output-file <nombre_archivo>]${RESET}"
     exit 1
 }
 
@@ -22,6 +30,7 @@ fi
 dict=$1
 url=$2
 success_only=false
+output_file=""
 
 # Verificar que el diccionario proporcionado se encuentra en el sistema
 if [ ! -f "$dict" ]; then
@@ -42,6 +51,14 @@ while [[ $# -gt 2 ]]; do
             success_only=true
             shift
             ;;
+        -w|--output-file)
+            if [ -n "$4" ]; then
+                output_file="$4"
+                shift 2
+            else
+                print_help
+            fi
+            ;;
         *)
             print_help
             ;;
@@ -58,7 +75,7 @@ while IFS= read -r line; do
 
     # Quitar barra de la url si contiene al final
     if [[ "$url" == */ ]]; then
-    url="${url%/}"
+        url="${url%/}"
     fi
 
     # Saltar líneas con '#'
@@ -84,4 +101,10 @@ while IFS= read -r line; do
     fi
 
     echo -e "${CYAN}$dir_url${RESET} --> ${color}$response_code${RESET}"
+
+    # Guardar la salida en el archivo si se especificó un nombre de archivo
+    if [ -n "$output_file" ]; then
+        echo "$dir_url --> $response_code" >> "$output_file"
+    fi
+
 done < "$dict"

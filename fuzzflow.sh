@@ -17,9 +17,9 @@ function ctrl_c(){
     exit 0
 }
 
-# Verificar que se proporcionan los dos argumentos
+# Ayuda
 print_help() {
-    echo -e "\n${YELLOW}[*]${RESET} Ayuda: ${CYAN}$0${RESET} ${YELLOW}<diccionario> <url>${RESET} ${GREEN}[-s | --success-only]${RESET} ${GREEN}[-w | --output-file <nombre_archivo>]${RESET}"
+    echo -e "\n${YELLOW}[*]${RESET} Ayuda: ${CYAN}$0${RESET} ${YELLOW}<diccionario> <url>${RESET} ${GREEN}[-s | --success-only]${RESET} ${GREEN}[-w | --output-file <nombre_archivo>]${RESET} ${GREEN}[-e | --extensions <extensiones>]${RESET}"
     exit 1
 }
 
@@ -31,20 +31,8 @@ dict=$1
 url=$2
 success_only=false
 output_file=""
+extensions=""
 
-# Verificar que el diccionario proporcionado se encuentra en el sistema
-if [ ! -f "$dict" ]; then
-    echo -e "\n${RED}[!]${RESET} El diccionario ${YELLOW}'$dict'${RESET} no existe"
-    exit 1
-fi
-
-# Verificar url
-if ! curl -s --head "$url" >/dev/null; then
-    echo -e "\n${RED}[!]${RESET} La URL ${YELLOW}'$url'${RESET} no es válida o no se puede acceder"
-    exit 1
-fi
-
-# Verificar argumentos opcionales
 while [[ $# -gt 2 ]]; do
     case "$3" in
         -s|--success-only)
@@ -59,52 +47,90 @@ while [[ $# -gt 2 ]]; do
                 print_help
             fi
             ;;
+        -e|--extensions)
+            if [ -n "$4" ]; then
+                extensions="$4"
+                shift 2
+            else
+                print_help
+            fi
+            ;;
         *)
             print_help
             ;;
     esac
 done
 
-# Verificar líneas del diccionario y controlar posición de comienzo
-dict_lines=$(wc -l < "$dict")
-start_line=0
+if [ ! -f "$dict" ]; then
+    echo -e "\n${RED}[!]${RESET} El diccionario ${YELLOW}'$dict'${RESET} no existe"
+    exit 1
+fi
 
-# Leer las líneas y enviar peticiones
+if ! curl -s --head "$url" >/dev/null; then
+    echo -e "\n${RED}[!]${RESET} La URL ${YELLOW}'$url'${RESET} no es válida o no se puede acceder"
+    exit 1
+fi
+
+dict_lines=$(wc -l < "$dict")
+
 echo -e "\n"
 while IFS= read -r line; do
-
-    # Quitar barra de la url si contiene al final
     if [[ "$url" == */ ]]; then
         url="${url%/}"
     fi
 
-    # Saltar líneas con '#'
     if [[ "$line" == *# ]]; then
         continue
     fi
 
-    dir_url="$url/$line"
-    response_code=$(curl -s -o /dev/null -w "%{http_code}" -I "$dir_url")
+    if [ -n "$extensions" ]; then
+        for ext in $(echo $extensions | tr "," "\n"); do
+            dir_url="$url/$line.$ext"
+            response_code=$(curl -s -o /dev/null -w "%{http_code}" -I "$dir_url")
 
-     if [ "$success_only" == true ]; then
-        if [ "$response_code" -ge 200 ] && [ "$response_code" -lt 300 ]; then
-            color=$GREEN  # Mostrar solo códigos de éxito en verde
-        else
-            continue  # Saltar a la siguiente iteración si no es un código de éxito
-        fi
+            if [ "$success_only" == true ]; then
+                if [ "$response_code" -ge 200 ] && [ "$response_code" -lt 300 ]; then
+                    color=$GREEN
+                else
+                    continue
+                fi
+            else
+                if [ "$response_code" -ge 200 ] && [ "$response_code" -lt 300 ]; then
+                    color=$GREEN
+                else
+                    color=$RED
+                fi
+            fi
+
+            echo -e "${CYAN}$dir_url${RESET} --> ${color}$response_code${RESET}"
+
+            if [ -n "$output_file" ]; then
+                echo "$dir_url --> $response_code" >> "$output_file"
+            fi
+        done
     else
-        if [ "$response_code" -ge 200 ] && [ "$response_code" -lt 300 ]; then
-            color=$GREEN  # Códigos de éxito (200-299) en verde
+        dir_url="$url/$line"
+        response_code=$(curl -s -o /dev/null -w "%{http_code}" -I "$dir_url")
+
+        if [ "$success_only" == true ]; then
+            if [ "$response_code" -ge 200 ] && [ "$response_code" -lt 300 ]; then
+                color=$GREEN
+            else
+                continue
+            fi
         else
-            color=$RED    # Códigos de error en rojo
+            if [ "$response_code" -ge 200 ] && [ "$response_code" -lt 300 ]; then
+                color=$GREEN
+            else
+                color=$RED
+            fi
         fi
-    fi
 
-    echo -e "${CYAN}$dir_url${RESET} --> ${color}$response_code${RESET}"
+        echo -e "${CYAN}$dir_url${RESET} --> ${color}$response_code${RESET}"
 
-    # Guardar la salida en el archivo si se especificó un nombre de archivo
-    if [ -n "$output_file" ]; then
-        echo "$dir_url --> $response_code" >> "$output_file"
+        if [ -n "$output_file" ]; then
+            echo "$dir_url --> $response_code" >> "$output_file"
+        fi
     fi
 
 done < "$dict"

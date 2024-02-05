@@ -12,7 +12,9 @@ Códigos de estado exitosos se muestran en verde, y códigos de error en rojo.
 ### **Opción para Mostrar Solo Códigos de Estado Exitosos:** 
 Se proporciona una opción (`-s` o `--success-only`) para mostrar solo códigos de estado exitosos en la salida.
 ### **Opción de guardar el escaneo en fichero**
-Se proporciona una opción (`-w, --output-file`) para guardar la salida del escaneo en un archivo especificado.
+Se proporciona una opción (`-w` o `--output-file`) para guardar la salida del escaneo en un archivo especificado.
+### **Buscar por extensión de archivo**
+Con la opción (`-e` o `--extensions`) es posible buscar por extensiones de archivos como txt, php, etc...
 
 ## Uso Básico
 ```bash

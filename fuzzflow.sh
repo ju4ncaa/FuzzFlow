@@ -19,7 +19,7 @@ function ctrl_c(){
 
 # Ayuda
 print_help() {
-    echo -e "\n${YELLOW}[i]${RESET} Ayuda: ${CYAN}$0${RESET} ${YELLOW}<diccionario> <url>${RESET} ${GREEN}[-s | --success-only]${RESET} ${GREEN}[-w | --output-file <nombre_archivo>]${RESET} ${GREEN}[-e | --extensions <extensiones>]${RESET}"
+    echo -e "\n${YELLOW}[*]${RESET} Ayuda: ${CYAN}$0${RESET} ${YELLOW}<diccionario> <url>${RESET} ${GREEN}[-s | --success-only]${RESET} ${GREEN}[-w | --output-file <nombre_archivo>]${RESET} ${GREEN}[-e | --extensions <extensiones>]${RESET}"
     exit 1
 }
 
@@ -72,8 +72,7 @@ if ! curl -s --head "$url" >/dev/null; then
 fi
 
 dict_lines=$(wc -l < "$dict")
-
-echo -e "\n"
+echo -e "\n${GREEN}[*]${RESET} Enumeración en curso...\n"
 while IFS= read -r line; do
     if [[ "$url" == */ ]]; then
         url="${url%/}"

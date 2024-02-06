@@ -19,7 +19,7 @@ function ctrl_c(){
 
 # Ayuda
 print_help() {
-    echo -e "\n${YELLOW}[*]${RESET} Ayuda: ${CYAN}$0${RESET} ${YELLOW}<diccionario> <url>${RESET} ${GREEN}[-s | --success-only]${RESET} ${GREEN}[-w | --output-file <nombre_archivo>]${RESET} ${GREEN}[-e | --extensions <extensiones>]${RESET}"
+    echo -e "\n${YELLOW}[i]${RESET} Ayuda: ${CYAN}$0${RESET} ${YELLOW}<diccionario> <url>${RESET} ${GREEN}[-s | --success-only]${RESET} ${GREEN}[-w | --output-file <nombre_archivo>]${RESET} ${GREEN}[-e | --extensions <extensiones>]${RESET}"
     exit 1
 }
 

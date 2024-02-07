@@ -91,6 +91,7 @@ if [[ ! "$url" == */ ]]; then
     url="${url}/"
 fi
 
+basename=$(basename "$wordlist")
 wordlist_lines=$(wc -l < "$wordlist")
 iteration_line=0
 success_count=0
@@ -98,7 +99,7 @@ fail_count=0
 
 banner;tput civis
 echo -e "\n\n${CYAN}[*]${RESET} URL: ${PURPLE}$url${RESET}"
-echo -e "${CYAN}[*]${RESET} Diccionario: ${PURPLE}$wordlist${RESET}"
+echo -e "${CYAN}[*]${RESET} Diccionario: ${PURPLE}$basename${RESET}"
 echo -e "\n\n${YELLOW}======================================================${RESET}"
 echo -e "${YELLOW}ID    Response    Payload      ${RESET}"
 echo -e "${YELLOW}======================================================${RESET}"

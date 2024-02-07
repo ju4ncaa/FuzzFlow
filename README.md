@@ -27,4 +27,4 @@ Este comando ejecutará la herramienta y mostrará solo los códigos de estado e
 ./fuzzer.sh diccionario.txt http://ejemplo.com -s
 ```
 ## Imagen de la herramienta
-![image](https://github.com/0xju4ncaa/FuzzFlow/assets/130152767/c2c9b6b2-3a2f-466d-a3dc-1d594c77ad12)
+<div align="center"><img src="https://github.com/0xju4ncaa/FuzzFlow/assets/130152767/c2c9b6b2-3a2f-466d-a3dc-1d594c77ad12"></div><br>

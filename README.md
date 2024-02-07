@@ -1,6 +1,6 @@
 # FuzzFlow
 
-<div align="center"><img src="https://github.com/0xju4ncaa/FuzzFlow/assets/130152767/84541a86-ca86-4df3-a424-a2853261bfba" width="300px"></div><br>
+<div align="center"><img src="https://github.com/0xju4ncaa/FuzzFlow/assets/130152767/8cd34e10-0575-4f7f-aa57-f11c29e0cd42" width="300px"></div><br>
 
 Herramienta diseñada para la enumeración de directorios en aplicaciones web utilizando un diccionario de posibles rutas. La herramienta realiza solicitudes a cada ruta del diccionario y muestra información relevante, como el código de respuesta. El objetivo principal es identificar directorios accesibles y obtener información sobre la estructura de la aplicación.
 

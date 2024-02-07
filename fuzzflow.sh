@@ -1,12 +1,11 @@
 #!/bin/bash
 
-# Author: 0xju4ncaa
-
-# Colores
+# Colores ANSI
 GREEN="\e[1;92m"
 RED="\e[1;91m"
 YELLOW="\e[1;93m"
 CYAN="\e[1;96m"
+PURPLE="\e[1;95m"
 RESET="\e[1;97m"
 
 # Funcion salir
@@ -14,55 +13,71 @@ trap ctrl_c INT
 stty -ctlecho
 function ctrl_c(){
     echo -e "\n\n${RED}[!]${RESET} Saliendo..."
+    tput cnorm
     exit 0
+}
+
+# Función banner
+function banner() {
+    echo -e "${PURPLE} _____              _____ _${RESET}"
+    echo -e "${PURPLE}|  ___|   _ _______|  ___| | _____      __${RESET}"
+    echo -e "${PURPLE}| |_ | | | |_  /_  / |_  | |/ _ \ \ /\ / /${RESET}"
+    echo -e "${YELLOW}|  _|| |_| |/ / / /|  _| | | (_) \ V  V / ${RESET}   (Hecho por ${PURPLE}0xju4ncaa${RESET})"
+    echo -e "${YELLOW}|_|   \____/___/___|_|   |_|\___/ \_/\_/  ${RESET}"
 }
 
 # Ayuda
 print_help() {
-    echo -e "\n${YELLOW}[*]${RESET} Ayuda: ${CYAN}$0${RESET} ${YELLOW}<diccionario> <url>${RESET} ${GREEN}[-s | --success-only]${RESET} ${GREEN}[-w | --output-file <nombre_archivo>]${RESET} ${GREEN}[-e | --extensions <extensiones>]${RESET}"
+    echo -e "\n${YELLOW}[*]${RESET} Ayuda: ${CYAN}$0${RESET} ${YELLOW}-u <url> -w <wordlist> [-o <nombre_archivo>] [-s] [-e <extensiones>]${RESET}"
     exit 1
 }
 
-if [ $# -lt 2 ]; then
+if [ $# -lt 4 ]; then
     print_help
 fi
 
-dict=$1
-url=$2
-success_only=false
+url=""
+wordlist=""
 output_file=""
+success_only=false
 extensions=""
 
-while [[ $# -gt 2 ]]; do
-    case "$3" in
-        -s|--success-only)
+while getopts ":u:w:o:se:" opt; do
+    case $opt in
+        u)
+            url=$OPTARG
+            ;;
+        w)
+            wordlist=$OPTARG
+            ;;
+        o)
+            output_file=$OPTARG
+            ;;
+        s)
             success_only=true
-            shift
             ;;
-        -w|--output-file)
-            if [ -n "$4" ]; then
-                output_file="$4"
-                shift 2
-            else
-                print_help
-            fi
+        e)
+            extensions=$OPTARG
             ;;
-        -e|--extensions)
-            if [ -n "$4" ]; then
-                extensions="$4"
-                shift 2
-            else
-                print_help
-            fi
+        \?)
+            echo "Opción inválida: -$OPTARG" >&2
+            print_help
             ;;
-        *)
+        :)
+            echo "La opción -$OPTARG requiere un argumento." >&2
             print_help
             ;;
     esac
 done
 
-if [ ! -f "$dict" ]; then
-    echo -e "\n${RED}[!]${RESET} El diccionario ${YELLOW}'$dict'${RESET} no existe"
+# Comprobar si se proporcionaron la URL y el wordlist
+if [ -z "$url" ] || [ -z "$wordlist" ]; then
+    echo "Debe proporcionar una URL y un wordlist."
+    print_help
+fi
+
+if [ ! -f "$wordlist" ]; then
+    echo -e "\n${RED}[!]${RESET} El wordlist ${YELLOW}'$wordlist'${RESET} no existe"
     exit 1
 fi
 
@@ -71,65 +86,79 @@ if ! curl -s --head "$url" >/dev/null; then
     exit 1
 fi
 
-dict_lines=$(wc -l < "$dict")
-echo -e "\n${GREEN}[*]${RESET} Enumeración en curso...\n"
-while IFS= read -r line; do
-    if [[ "$url" == */ ]]; then
-        url="${url%/}"
-    fi
+# Asegurarse de que la URL termine con una barra
+if [[ ! "$url" == */ ]]; then
+    url="${url}/"
+fi
 
+wordlist_lines=$(wc -l < "$wordlist")
+iteration_line=0
+success_count=0
+fail_count=0
+
+banner;tput civis
+echo -e "\n\n${CYAN}[*]${RESET} URL: ${PURPLE}$url${RESET}"
+echo -e "${CYAN}[*]${RESET} Diccionario: ${PURPLE}$wordlist${RESET}"
+echo -e "\n\n${YELLOW}======================================================${RESET}"
+echo -e "${YELLOW}ID    Response    Payload      ${RESET}"
+echo -e "${YELLOW}======================================================${RESET}"
+while IFS= read -r line; do
+    ((iteration_line++))
     if [[ "$line" == *# ]]; then
         continue
     fi
 
     if [ -n "$extensions" ]; then
         for ext in $(echo $extensions | tr "," "\n"); do
-            dir_url="$url/$line.$ext"
+            dir_url="${url}${line}.${ext}"
             response_code=$(curl -s -o /dev/null -w "%{http_code}" -I "$dir_url")
 
             if [ "$success_only" == true ]; then
                 if [ "$response_code" -ge 200 ] && [ "$response_code" -lt 300 ]; then
-                    color=$GREEN
-                else
-                    continue
+                    success_count=$((success_count + 1))
+                    echo -e "${CYAN}${iteration_line}${RESET}:${GREEN}   ${response_code}       ${dir_url}      ${RESET}"
                 fi
             else
                 if [ "$response_code" -ge 200 ] && [ "$response_code" -lt 300 ]; then
-                    color=$GREEN
+                    success_count=$((success_count + 1))
+                    echo -e "${CYAN}${iteration_line}${RESET}:${GREEN}   ${response_code}       ${dir_url}      ${RESET}"
                 else
-                    color=$RED
+                    fail_count=$((fail_count + 1))
+                    echo -e "${CYAN}${iteration_line}${RESET}:${RED}   ${response_code}       ${dir_url}      ${RESET}"
                 fi
             fi
 
-            echo -e "${CYAN}$dir_url${RESET} --> ${color}$response_code${RESET}"
-
             if [ -n "$output_file" ]; then
-                echo "$dir_url --> $response_code" >> "$output_file"
+                echo "${dir_url} --> ${response_code}" >> "$output_file"
             fi
         done
     else
-        dir_url="$url/$line"
+        dir_url="${url}${line}"
         response_code=$(curl -s -o /dev/null -w "%{http_code}" -I "$dir_url")
 
         if [ "$success_only" == true ]; then
             if [ "$response_code" -ge 200 ] && [ "$response_code" -lt 300 ]; then
-                color=$GREEN
-            else
-                continue
+                success_count=$((success_count + 1))
+                echo -e "${CYAN}${iteration_line}${RESET}:${GREEN}   ${response_code}       ${dir_url}      ${RESET}"
             fi
         else
             if [ "$response_code" -ge 200 ] && [ "$response_code" -lt 300 ]; then
-                color=$GREEN
+                success_count=$((success_count + 1))
+                echo -e "${CYAN}${iteration_line}${RESET}:${GREEN}   ${response_code}       ${dir_url}      ${RESET}"
             else
-                color=$RED
+                fail_count=$((fail_count + 1))
+                echo -e "${CYAN}${iteration_line}${RESET}:${RED}   ${response_code}       ${dir_url}      ${RESET}"
             fi
         fi
 
-        echo -e "${CYAN}$dir_url${RESET} --> ${color}$response_code${RESET}"
-
         if [ -n "$output_file" ]; then
-            echo "$dir_url --> $response_code" >> "$output_file"
+            echo "${dir_url} --> ${response_code}" >> "$output_file"
         fi
     fi
+done < "$wordlist"
 
-done < "$dict"
+echo -e "${YELLOW}=====================================================================${RESET}"
+echo -e "\n\n${CYAN}[+] Resumen:${RESET}"
+echo -e "${GREEN}[+] Total de peticiones exitosas: ${success_count}${RESET}"
+echo -e "${RED}[!] Total de peticiones fallidas: ${fail_count}${RESET}"
+tput cnorm
